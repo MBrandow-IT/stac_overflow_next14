@@ -19,7 +19,7 @@ const LocalSearchBar = ({
 }: LocalSearchBarProps) => {
   return (
     <div
-      className={`background-light800_darkgradient relative flex min-h-[56px] grow items-center gap-4 rounded-xl px-4 w-full ${otherClasses}`}
+      className={`flex-1 background-light800_darkgradient relative flex min-h-[56px] grow items-center gap-4 rounded-xl px-4 w-full ${otherClasses}`}
     >
       {iconPosition === "left" && (
         <Image
@@ -34,7 +34,7 @@ const LocalSearchBar = ({
         type="text"
         placeholder={placeholder}
         value=""
-        className="paragraph-regular no-focus placeholder background-light800_darkgradient border-none shadow-none outline-none"
+        className="paragraph-regular no-focus placeholder:text-slate-500 background-light800_darkgradient border-none shadow-none outline-none"
       />
       {iconPosition === "right" && (
         <Image
