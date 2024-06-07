@@ -210,52 +210,52 @@ export const topQuestions = [
 
 export const tags = [
   {
-    _id: 1,
+    _id: "1",
     name: "react",
     totalQuestions: 100,
   },
   {
-    _id: 2,
+    _id: "2",
     name: "typescript",
     totalQuestions: 80,
   },
   {
-    _id: 3,
+    _id: "3",
     name: "next.js",
     totalQuestions: 70,
   },
   {
-    _id: 4,
+    _id: "4",
     name: "redux",
     totalQuestions: 60,
   },
   {
-    _id: 5,
+    _id: "5",
     name: "react-native",
     totalQuestions: 50,
   },
   {
-    _id: 6,
+    _id: "6",
     name: "node.js",
     totalQuestions: 40,
   },
   {
-    _id: 7,
+    _id: "7",
     name: "rest",
     totalQuestions: 30,
   },
   {
-    _id: 8,
+    _id: "8",
     name: "graphql",
     totalQuestions: 20,
   },
   {
-    _id: 9,
+    _id: "9",
     name: "form-validation",
     totalQuestions: 10,
   },
   {
-    _id: 10,
+    _id: "10",
     name: "testing",
     totalQuestions: 5,
   },

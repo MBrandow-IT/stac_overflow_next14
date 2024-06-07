@@ -9,7 +9,7 @@ const HomeFilters = () => {
   const [activeFilter, setActiveFilter] = React.useState("");
 
   return (
-    <div className="flex-wrap flex-row gap-3 md:flex hidden mt-10">
+    <div className="flex-wrap flex-row gap-3 md:flex hidden mt-3">
       {HomePageFilters.map((filter, index) => (
         <Button
           key={index}
