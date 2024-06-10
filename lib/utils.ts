@@ -47,6 +47,8 @@ export const formatLargeNumber = (number: number): string => {
     return (number / 1_000_000).toFixed(1) + "m";
   } else if (number >= 1_000) {
     return (number / 1_000).toFixed(1) + "k";
+  } else if (number === 0) {
+    return "0";
   } else {
     return number.toString();
   }
