@@ -13,8 +13,6 @@ const UserCard = ({ username, name, picture, tags }: UserProps) => {
   const sortedTags = tags.sort((a, b) => b.count - a.count);
   const topThreeTags = sortedTags.slice(0, 3);
 
-  console.log(name, tags);
-
   return (
     <div className="card-wrapper p-9 sm:px-4 rounded-[14px] flex flex-col items-center shadow-light100_darknone w-[260px]">
       <Image

@@ -11,7 +11,7 @@ const AskQuestion = async () => {
 
   if (!userId) redirect("/sign-in");
 
-  const mongoUser = await getUserById({ userId });
+  const mongoUser = await getUserById({ clerkUserId: userId });
 
   // console.log(mongoUser);
 

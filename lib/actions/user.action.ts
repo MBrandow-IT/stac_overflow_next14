@@ -117,10 +117,14 @@ export async function getUserById(params: any) {
   try {
     connectToDatabase();
 
-    const { userId } = params;
+    const { userId, clerkUserId } = params;
+    let user;
 
-    const user = await User.findOne({ clerkId: userId });
-
+    if (userId) {
+      user = await User.findById(userId);
+    } else {
+      user = await User.findOne({ clerkId: clerkUserId });
+    }
     return user;
   } catch (error) {
     console.log(error);

@@ -34,11 +34,7 @@ export default async function Tags() {
       >
         {result.length > 0 ? (
           result.map((tag, index) => (
-            <Link
-              key={index}
-              href={`/profile/user_${tag._id}`}
-              className="w-[260px]"
-            >
+            <Link key={index} href={`/tags/${tag._id}`} className="w-[260px]">
               <TagCard
                 name={tag.name}
                 description={tag.description}

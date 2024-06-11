@@ -6,6 +6,7 @@ import Tag from "../database/tag.model";
 import User from "../database/user.model";
 import { connectToDatabase } from "../mongoose";
 import { CreateQuestionParams, GetQuestionsParams } from "./share.types";
+import { GetQuestionByIdParams } from "./types";
 
 export async function getQuestions(params: GetQuestionsParams) {
   try {
@@ -54,5 +55,21 @@ export async function createQuestion(params: CreateQuestionParams) {
     });
 
     revalidatePath(path);
+  } catch (error) {}
+}
+
+export async function getQuestionById(params: GetQuestionByIdParams) {
+  try {
+    connectToDatabase();
+
+    // Take current user and create a question based on the question props and push it to the database.
+    const { questionId } = params;
+
+    // Create the question
+    const question = await Question.findById({
+      _id: questionId,
+    });
+
+    return question;
   } catch (error) {}
 }
