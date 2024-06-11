@@ -73,7 +73,7 @@ export async function getQuestionById(params: GetQuestionByIdParams) {
       .populate({
         path: "author",
         model: User,
-        select: "_id clerkId name picture createdAt username",
+        select: "_id clerkId name picture createdAt username saved",
       });
 
     return question;

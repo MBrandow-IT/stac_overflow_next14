@@ -18,7 +18,7 @@ interface QuestionCardProps {
     picture: string;
   };
   upVotes: [];
-  answers: string;
+  answers: [];
   views: string;
   createdAt: Date;
 }
@@ -33,6 +33,7 @@ const QuestionCard = ({
   views,
   createdAt,
 }: QuestionCardProps) => {
+  console.log(upVotes);
   return (
     <div className="card-wrapper p-9 sm:px-11 rounded-[10px]">
       <div className="flex flex-col-reverse items-start justify-between gap-5 sm:flex-row">
@@ -65,16 +66,14 @@ const QuestionCard = ({
         <Metric
           imgUrl="/assets/icons/like.svg"
           alt="Upvotes"
-          value={
-            upVotes !== undefined ? formatLargeNumber(upVotes.length || 0) : "0"
-          }
+          value={formatLargeNumber(upVotes.length)}
           title=" Votes"
           textStyles="small-medium text-dark400_light800"
         />
         <Metric
           imgUrl="/assets/icons/message.svg"
           alt="Answers"
-          value={formatLargeNumber(Number(answers))}
+          value={formatLargeNumber(answers.length)}
           title=" Answers"
           textStyles="small-medium text-dark400_light800"
         />

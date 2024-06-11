@@ -3,6 +3,7 @@ import Answer from "@/components/forms/Answer";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Metric from "@/components/shared/Metric";
 import RenderTag from "@/components/shared/RenderTag";
+import Voting from "@/components/shared/Voting";
 import { getQuestionById } from "@/lib/actions/question.action";
 import { formatLargeNumber, getTimestamp } from "@/lib/utils";
 import Image from "next/image";
@@ -21,6 +22,12 @@ const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
 
   const questionId = params.id;
   const userId = author._id;
+
+  const liked = question.upvotes.includes(userId);
+  const saved = author.saved.includes(questionId);
+  const disliked = question.downvotes.includes(userId);
+  const upvotes = question.upvotes.length;
+  const downvotes = question.downvotes.length;
 
   return (
     <>
@@ -41,7 +48,17 @@ const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
               {author.username}
             </p>
           </Link>
-          <div className="flex justify-end">VOTING</div>
+          <div className="flex justify-end">
+            <Voting
+              questionId={JSON.stringify(questionId)}
+              userId={JSON.stringify(userId)}
+              upvotes={upvotes}
+              downvotes={downvotes}
+              liked={liked}
+              saved={saved}
+              disliked={disliked}
+            />
+          </div>
         </div>
         <h2 className="h2-semibold text-dark200_light900 mt-3.5 w-full text-left">
           {question.title}
@@ -59,7 +76,7 @@ const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
         <Metric
           imgUrl="/assets/icons/message.svg"
           alt="Answers"
-          value={formatLargeNumber(Number(question.answers))}
+          value={formatLargeNumber(question.answers.length)}
           title=" Answers"
           textStyles="small-medium text-dark400_light800"
         />

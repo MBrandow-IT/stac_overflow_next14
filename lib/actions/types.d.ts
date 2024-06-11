@@ -154,3 +154,13 @@ export interface GetUserStatsParams {
 export interface DeleteUserParams {
   clerkId: string;
 }
+
+export interface VoteParams {
+  userId: string;
+  questionId?: string;
+  answerId?: string;
+  hasUpVoted?: boolean;
+  hasDownVoted?: boolean;
+  isUpVoting?: boolean;
+  isDownVoting?: boolean;
+}
