@@ -30,9 +30,13 @@ const UserCard = ({ username, name, picture, tags }: UserProps) => {
         {topThreeTags.map((tag, index) => (
           <Badge
             key={index}
-            className="subtle-medium background-light800_dark300 text-light400_light500 rounded-md border-none px-4 py-2 uppercase mx-1"
+            className="subtle-medium background-light800_dark300 text-light400_light500 rounded-md border-none px-4 py-2 uppercase mx-1 inline-flex"
           >
-            {tag.name === undefined ? "No Tags Yet" : tag.name}
+            {tag.name === undefined
+              ? "No Tags Yet"
+              : tag.name.length > 6
+              ? `${tag.name.slice(0, 4)}..`
+              : tag.name}
           </Badge>
         ))}
       </div>

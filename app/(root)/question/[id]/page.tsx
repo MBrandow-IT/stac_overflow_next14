@@ -1,5 +1,7 @@
 import ParseHTML from "@/components/ParseHTML";
+import Answer from "@/components/forms/Answer";
 import Metric from "@/components/shared/Metric";
+import RenderTag from "@/components/shared/RenderTag";
 import { getQuestionById } from "@/lib/actions/question.action";
 import { formatLargeNumber, getTimestamp } from "@/lib/utils";
 import Image from "next/image";
@@ -15,6 +17,9 @@ interface QuestionDetailsProps {
 const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
   const question = await getQuestionById({ questionId: params.id });
   const author = question.author;
+
+  const questionId = params.id;
+  const userId = author._id;
 
   return (
     <>
@@ -67,6 +72,22 @@ const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
       </div>
 
       <ParseHTML data={question.content} />
+
+      <div className="mt-8 flex flex-wrap gap-2">
+        {question.tags.map((tag: any) => (
+          <RenderTag
+            _id={tag._id}
+            key={tag._id}
+            name={tag.name}
+            showCount={false}
+          />
+        ))}
+      </div>
+
+      <Answer
+        questionId={JSON.stringify(questionId)}
+        userId={JSON.stringify(userId)}
+      />
     </>
   );
 };
