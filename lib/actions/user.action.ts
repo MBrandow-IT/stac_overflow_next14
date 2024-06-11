@@ -3,8 +3,115 @@
 import { revalidatePath } from "next/cache";
 import User from "../database/user.model";
 import { connectToDatabase } from "../mongoose";
-import { CreateUserParams, UpdateUserParams, DeleteUserParams } from "./types";
+import {
+  CreateUserParams,
+  UpdateUserParams,
+  DeleteUserParams,
+  GetAllUsersParams,
+} from "./types";
 import Question from "../database/question.model";
+
+export async function getAllUsers(params: GetAllUsersParams) {
+  try {
+    connectToDatabase();
+
+    const users = User.aggregate([
+      // Lookup questions authored by each user
+      {
+        $lookup: {
+          from: "questions", // the collection name of questions
+          localField: "_id",
+          foreignField: "author",
+          as: "authoredQuestions",
+        },
+      },
+
+      // Unwind the authoredQuestions array
+      {
+        $unwind: {
+          path: "$authoredQuestions",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // Unwind the tags in authoredQuestions
+      {
+        $unwind: {
+          path: "$authoredQuestions.tags",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // Group by user and tags, and count the occurrences
+      {
+        $group: {
+          _id: { userId: "$_id", tagId: "$authoredQuestions.tags" },
+          count: { $sum: 1 },
+        },
+      },
+
+      // Lookup tag details
+      {
+        $lookup: {
+          from: "tags", // the collection name of tags
+          localField: "_id.tagId",
+          foreignField: "_id",
+          as: "tagDetails",
+        },
+      },
+
+      // Unwind the tagDetails array
+      { $unwind: { path: "$tagDetails", preserveNullAndEmptyArrays: true } },
+
+      // Group back to user level and collect tag details
+      {
+        $group: {
+          _id: "$_id.userId",
+          tags: {
+            $push: {
+              _id: "$tagDetails._id",
+              name: "$tagDetails.name",
+              count: "$count",
+            },
+          },
+        },
+      },
+
+      // Lookup user details
+      {
+        $lookup: {
+          from: "users", // the collection name of users
+          localField: "_id",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+
+      { $unwind: "$userDetails" },
+
+      // Project the required fields
+      {
+        $project: {
+          _id: "$_id", // Include user _id
+          name: "$userDetails.name",
+          username: "$userDetails.username",
+          picture: "$userDetails.picture",
+          tags: {
+            $filter: {
+              input: "$tags",
+              as: "tag",
+              cond: { $ne: ["$$tag._id", null] },
+            },
+          },
+        },
+      },
+    ]);
+    return users;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
 
 export async function getUserById(params: any) {
   try {

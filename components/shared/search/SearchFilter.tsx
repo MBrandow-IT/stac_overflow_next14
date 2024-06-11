@@ -38,7 +38,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             </div>
           </SelectTrigger>
           <SelectContent>
-            <SelectGroup className="text-dark500_light700">
+            <SelectGroup className="text-dark500_light700 background-light800_dark300">
               {filters.map((filter, index) => (
                 <SelectItem key={index} value={filter.value}>
                   {filter.name}

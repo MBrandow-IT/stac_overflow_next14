@@ -4,12 +4,18 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 
 import { HomePageFilters } from "@/constants";
+import { usePathname } from "next/navigation";
 
 const HomeFilters = () => {
   const [activeFilter, setActiveFilter] = React.useState("");
+  const pathname = usePathname();
 
   return (
-    <div className="flex-wrap flex-row gap-3 md:flex hidden mt-3">
+    <div
+      className={`flex-wrap flex-row gap-3 md:flex hidden mt-3 ${
+        pathname !== "/" && "md:hidden"
+      }`}
+    >
       {HomePageFilters.map((filter, index) => (
         <Button
           key={index}
