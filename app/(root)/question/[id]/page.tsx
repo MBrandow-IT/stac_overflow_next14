@@ -1,5 +1,6 @@
 import ParseHTML from "@/components/ParseHTML";
 import Answer from "@/components/forms/Answer";
+import AllAnswers from "@/components/shared/AllAnswers";
 import Metric from "@/components/shared/Metric";
 import RenderTag from "@/components/shared/RenderTag";
 import { getQuestionById } from "@/lib/actions/question.action";
@@ -83,6 +84,11 @@ const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
           />
         ))}
       </div>
+
+      <AllAnswers
+        questionId={JSON.stringify(questionId)}
+        userId={JSON.stringify(userId)}
+      />
 
       <Answer
         questionId={JSON.stringify(questionId)}

@@ -45,7 +45,16 @@ const Answer = ({ questionId, userId }: Props) => {
         question: JSON.parse(questionId),
         path: "/question",
       });
+
+      form.reset();
+
+      if (editorRef.current) {
+        const editor = editorRef.current as any;
+
+        editor.setContent("");
+      }
     } catch (error) {
+      console.log(error);
     } finally {
       setIsSubmitting(false);
     }

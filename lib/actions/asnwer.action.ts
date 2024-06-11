@@ -2,9 +2,10 @@
 
 import Answer from "@/lib/database/answer.model";
 import { connectToDatabase } from "../mongoose";
-import { CreateAnswerParams } from "./types";
+import { CreateAnswerParams, GetAnswersParams } from "./types";
 import Question from "@/lib/database/question.model";
 import { revalidatePath } from "next/cache";
+import User from "../database/user.model";
 
 export async function createAnswer(params: CreateAnswerParams) {
   try {
@@ -30,19 +31,19 @@ export async function createAnswer(params: CreateAnswerParams) {
   }
 }
 
-// export async function getAnswers(params: GetAnswersParams) {
-//   try {
-//     connectToDatabase();
+export async function getAnswers(params: GetAnswersParams) {
+  try {
+    connectToDatabase();
 
-//     const { questionId } = params;
+    const answers = await Answer.find({})
+      .where("question", params.questionId)
+      .populate({ path: "author", model: User })
+      .populate({ path: "question", model: Question })
+      .sort({ createdAt: -1 });
 
-//     const answers = await Answer.find({ question: questionId })
-//       .populate("author", "_id clerkId name picture")
-//       .sort({ createdAt: -1 })
-
-//     return { answers };
-//   } catch (error) {
-//     console.log(error);
-//     throw error;
-//   }
-// }
+    return { answers };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
