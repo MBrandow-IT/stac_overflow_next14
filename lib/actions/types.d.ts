@@ -164,3 +164,9 @@ export interface VoteParams {
   isUpVoting?: boolean;
   isDownVoting?: boolean;
 }
+
+export interface SaveParams {
+  userId: string;
+  questionId: string;
+  isSaved: boolean;
+}

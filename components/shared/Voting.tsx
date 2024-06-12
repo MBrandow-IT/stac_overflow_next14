@@ -3,7 +3,7 @@
 import React from "react";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { handleVote } from "@/lib/actions/voting.action";
+import { handleSave, handleVote } from "@/lib/actions/voting.action";
 
 interface Props {
   questionId?: string;
@@ -53,10 +53,17 @@ const Voting = ({
     }
   };
 
-  console.log(liked, disliked);
-
-  const handleFavoriteClick = () => {
-    // Implement favorite click handling logic here if necessary
+  const handleSaveClick = async () => {
+    try {
+      await handleSave({
+        userId: JSON.parse(userId),
+        questionId: questionId ? JSON.parse(questionId) : null,
+        isSaved: saved || false,
+      });
+      // Optionally, update the UI state here to reflect the changes
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -93,7 +100,7 @@ const Voting = ({
           <p className="subtle-medium text-dark400_light900">{downvotes}</p>
         </Button>
         {answerId === undefined && (
-          <Button className="gap-1 px-1 mx-1" onClick={handleFavoriteClick}>
+          <Button className="gap-1 px-1 mx-1" onClick={handleSaveClick}>
             <Image
               alt="Favorite"
               src={

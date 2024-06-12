@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import Question from "../database/question.model";
 import Answer from "../database/answer.model";
 import { connectToDatabase } from "../mongoose";
-import { VoteParams } from "./types";
+import { SaveParams, VoteParams } from "./types";
+import User from "../database/user.model";
 
 export async function handleVote(params: VoteParams) {
   // console.log(params);
@@ -58,6 +59,31 @@ export async function handleVote(params: VoteParams) {
     }
 
     await item.save();
+    revalidatePath(`/question/${questionId}`); // Adjust this path as necessary
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function handleSave({ userId, questionId, isSaved }: SaveParams) {
+  try {
+    connectToDatabase();
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error("User not found.");
+    }
+
+    if (isSaved) {
+      // Remove the question from the user's saved list
+      user.saved.pull(questionId);
+    } else {
+      // Add the question to the user's saved list
+      user.saved.push(questionId);
+    }
+
+    await user.save();
     revalidatePath(`/question/${questionId}`); // Adjust this path as necessary
   } catch (error) {
     console.log(error);
