@@ -1,14 +1,52 @@
 "use server";
 
-import Tag from "../database/tag.model";
+import { FilterQuery } from "mongoose";
+import Question from "../database/question.model";
+import Tag, { ITag } from "../database/tag.model";
+import User from "../database/user.model";
 import { connectToDatabase } from "../mongoose";
-import { GetAllTagsParams } from "./types";
+import { GetAllTagsParams, GetQuestionsByTagIdParams } from "./types";
+
+export async function getAllTagQuestions(params: GetQuestionsByTagIdParams) {
+  try {
+    connectToDatabase();
+
+    const { tagId, searchQuery } = params;
+
+    const tagFilter: FilterQuery<ITag> = { _id: tagId };
+
+    const tag = await Tag.findOne(tagFilter).populate({
+      path: "questions",
+      model: Question,
+      match: searchQuery
+        ? { title: { $regex: searchQuery, $options: "i" } }
+        : {},
+      options: {
+        sort: { createdAt: -1 },
+      },
+      populate: [
+        {
+          path: "author",
+          model: User,
+        },
+        {
+          path: "tags",
+          model: Tag,
+        },
+      ],
+    });
+
+    return tag;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 export async function getAllTags(params: GetAllTagsParams) {
   try {
     connectToDatabase();
 
-    const tags = Tag.aggregate([
+    const tags = await Tag.aggregate([
       // Lookup questions with each tag
       {
         $lookup: {
