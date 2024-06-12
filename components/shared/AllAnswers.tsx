@@ -10,7 +10,7 @@ import Voting from "./Voting";
 
 interface props {
   questionId: string;
-  userId: string;
+  userId?: string;
 }
 
 const AllAnswers = async ({ questionId, userId }: props) => {
@@ -56,8 +56,16 @@ const AllAnswers = async ({ questionId, userId }: props) => {
                     answerId={JSON.stringify(answer._id)}
                     upvotes={answer.upvotes.length}
                     downvotes={answer.downvotes.length}
-                    liked={answer.upvotes.includes(JSON.parse(userId))}
-                    disliked={answer.downvotes.includes(JSON.parse(userId))}
+                    liked={
+                      userId
+                        ? answer.upvotes.includes(JSON.parse(userId))
+                        : false
+                    }
+                    disliked={
+                      userId
+                        ? answer.downvotes.includes(JSON.parse(userId))
+                        : false
+                    }
                   />
                 </div>
               </div>

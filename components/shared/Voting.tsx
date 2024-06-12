@@ -1,13 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import { handleSave, handleVote } from "@/lib/actions/voting.action";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Props {
   questionId?: string;
-  userId: string;
+  userId?: string;
   answerId?: string;
   upvotes: number;
   downvotes: number;
@@ -20,14 +21,24 @@ const Voting = ({
   questionId,
   userId,
   answerId,
-  upvotes,
-  downvotes,
-  liked,
-  saved,
-  disliked,
+  upvotes: initialUpvotes,
+  downvotes: initialDownvotes,
+  liked: initialLiked,
+  saved: initialSaved,
+  disliked: initialDisliked,
 }: Props) => {
+  const [liked, setLiked] = useState(initialLiked);
+  const [disliked, setDisliked] = useState(initialDisliked);
+  const [upvotes, setUpvotes] = useState(initialUpvotes);
+  const [downvotes, setDownvotes] = useState(initialDownvotes);
+  const [saved, setSaved] = useState(initialSaved);
+  const { toast } = useToast();
+
   const handleVotingClick = async (isUpVoting: boolean) => {
     try {
+      if (!userId) {
+        return;
+      }
       await handleVote({
         userId: JSON.parse(userId),
         questionId: questionId ? JSON.parse(questionId) : null,
@@ -37,17 +48,30 @@ const Voting = ({
         isUpVoting,
         isDownVoting: !isUpVoting,
       });
-      // console.log(
-      //   questionId,
-      //   userId,
-      //   answerId,
-      //   upvotes,
-      //   downvotes,
-      //   liked,
-      //   saved,
-      //   disliked
-      // );
-      // Optionally, update the UI state here to reflect the changes
+
+      if (isUpVoting) {
+        setLiked(!liked);
+        if (liked) {
+          setUpvotes(upvotes - 1);
+        } else {
+          setUpvotes(upvotes + 1);
+          if (disliked) {
+            setDisliked(false);
+            setDownvotes(downvotes - 1);
+          }
+        }
+      } else {
+        setDisliked(!disliked);
+        if (disliked) {
+          setDownvotes(downvotes - 1);
+        } else {
+          setDownvotes(downvotes + 1);
+          if (liked) {
+            setLiked(false);
+            setUpvotes(upvotes - 1);
+          }
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -55,12 +79,15 @@ const Voting = ({
 
   const handleSaveClick = async () => {
     try {
+      if (!userId) {
+        return;
+      }
       await handleSave({
         userId: JSON.parse(userId),
         questionId: questionId ? JSON.parse(questionId) : null,
         isSaved: saved || false,
       });
-      // Optionally, update the UI state here to reflect the changes
+      setSaved(!saved);
     } catch (error) {
       console.log(error);
     }
@@ -71,7 +98,14 @@ const Voting = ({
       <div className="flex items-center">
         <Button
           className="gap-1 mx-1 px-1"
-          onClick={() => handleVotingClick(true)}
+          onClick={() => {
+            userId
+              ? handleVotingClick(true)
+              : toast({
+                  title: "Please login to vote",
+                  description: "You must be logged in to vote on questions",
+                });
+          }}
         >
           <Image
             alt="Upvote"
@@ -85,7 +119,14 @@ const Voting = ({
         </Button>
         <Button
           className="gap-1 px-1 mx-1"
-          onClick={() => handleVotingClick(false)}
+          onClick={() => {
+            userId
+              ? handleVotingClick(true)
+              : toast({
+                  title: "Please login to vote",
+                  description: "You must be logged in to vote on questions",
+                });
+          }}
         >
           <Image
             alt="Downvote"
@@ -100,7 +141,17 @@ const Voting = ({
           <p className="subtle-medium text-dark400_light900">{downvotes}</p>
         </Button>
         {answerId === undefined && (
-          <Button className="gap-1 px-1 mx-1" onClick={handleSaveClick}>
+          <Button
+            className="gap-1 px-1 mx-1"
+            onClick={() => {
+              userId
+                ? handleSaveClick()
+                : toast({
+                    title: "Please Login",
+                    description: "You must be logged in to save questions",
+                  });
+            }}
+          >
             <Image
               alt="Favorite"
               src={

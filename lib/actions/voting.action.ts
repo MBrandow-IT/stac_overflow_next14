@@ -59,7 +59,7 @@ export async function handleVote(params: VoteParams) {
     }
 
     await item.save();
-    revalidatePath(`/question/${questionId}`); // Adjust this path as necessary
+    // revalidatePath(`/`); // Adjust this path as necessary
   } catch (error) {
     console.log(error);
     throw error;
@@ -70,7 +70,10 @@ export async function handleSave({ userId, questionId, isSaved }: SaveParams) {
   try {
     connectToDatabase();
 
+    console.log("saved clicked");
+
     const user = await User.findById(userId);
+    console.log(user);
     if (!user) {
       throw new Error("User not found.");
     }
@@ -84,7 +87,7 @@ export async function handleSave({ userId, questionId, isSaved }: SaveParams) {
     }
 
     await user.save();
-    revalidatePath(`/question/${questionId}`); // Adjust this path as necessary
+    revalidatePath(`/collection`); // Adjust this path as necessary
   } catch (error) {
     console.log(error);
     throw error;

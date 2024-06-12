@@ -4,8 +4,11 @@ import AllAnswers from "@/components/shared/AllAnswers";
 import Metric from "@/components/shared/Metric";
 import RenderTag from "@/components/shared/RenderTag";
 import Voting from "@/components/shared/Voting";
+import { viewQuestion } from "@/lib/actions/interaction.action";
 import { getQuestionById } from "@/lib/actions/question.action";
+import { getUserIdWithClerkId } from "@/lib/actions/user.action";
 import { formatLargeNumber, getTimestamp } from "@/lib/utils";
+import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -17,17 +20,41 @@ interface QuestionDetailsProps {
 }
 
 const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
+  const { userId } = auth();
+
   const question = await getQuestionById({ questionId: params.id });
   const author = question.author;
 
-  const questionId = params.id;
-  const userId = author._id;
+  let mongoUserId;
+  if (userId) {
+    mongoUserId = await getUserIdWithClerkId(userId);
+  }
 
-  const liked = question.upvotes.includes(userId);
-  const saved = author.saved.includes(questionId);
-  const disliked = question.downvotes.includes(userId);
+  const questionId = params.id;
+
+  console.log(question._id);
+  const liked =
+    mongoUserId !== undefined
+      ? question.upvotes.includes(mongoUserId._id)
+      : false;
+  const saved =
+    mongoUserId !== undefined
+      ? mongoUserId.saved.some(
+          (savedQuestion: { equals: (arg0: any) => any }) =>
+            savedQuestion.equals(question._id)
+        )
+      : false;
+  const disliked =
+    mongoUserId !== undefined
+      ? question.downvotes.includes(mongoUserId._id)
+      : false;
   const upvotes = question.upvotes.length;
   const downvotes = question.downvotes.length;
+
+  viewQuestion({
+    questionId,
+    userId: mongoUserId !== undefined ? mongoUserId._id : null,
+  });
 
   return (
     <>
@@ -51,7 +78,11 @@ const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
           <div className="flex justify-end">
             <Voting
               questionId={JSON.stringify(questionId)}
-              userId={JSON.stringify(userId)}
+              userId={
+                mongoUserId !== undefined
+                  ? JSON.stringify(mongoUserId._id)
+                  : undefined
+              }
               upvotes={upvotes}
               downvotes={downvotes}
               liked={liked}
@@ -104,12 +135,20 @@ const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
 
       <AllAnswers
         questionId={JSON.stringify(questionId)}
-        userId={JSON.stringify(userId)}
+        userId={
+          mongoUserId !== undefined
+            ? JSON.stringify(mongoUserId._id)
+            : undefined
+        }
       />
 
       <Answer
         questionId={JSON.stringify(questionId)}
-        userId={JSON.stringify(userId)}
+        userId={
+          mongoUserId !== undefined
+            ? JSON.stringify(mongoUserId._id)
+            : undefined
+        }
       />
     </>
   );
