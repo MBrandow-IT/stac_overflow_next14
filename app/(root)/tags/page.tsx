@@ -11,7 +11,7 @@ export default async function Tags() {
   const result = await getAllTags({});
 
   return (
-    <div className="w-full">
+    <>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
         <h1 className="h1-bold text-dark100_light900">Tags</h1>
       </div>
@@ -51,6 +51,6 @@ export default async function Tags() {
           />
         )}
       </div>
-    </div>
+    </>
   );
 }
