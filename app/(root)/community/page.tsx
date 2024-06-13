@@ -34,7 +34,7 @@ export default async function Communities() {
           result.map((user, index) => (
             <Link
               key={index}
-              href={`/profile/user_${user._id}`}
+              href={`/profile/${user.clerkId}`}
               className="w-[260px]"
             >
               <UserCard

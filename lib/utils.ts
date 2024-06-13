@@ -53,3 +53,41 @@ export const formatLargeNumber = (number: number): string => {
     return number.toString();
   }
 };
+
+export const getJoinedDateString = (date: Date) => {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const joinYear = date.getFullYear();
+  const month = months[date.getMonth()];
+
+  let yearString;
+
+  if (currentYear === joinYear) {
+    yearString = "this year";
+  } else if (currentYear - joinYear === 1) {
+    yearString = "last year";
+  } else {
+    yearString = `${currentYear - joinYear} years ago`;
+  }
+
+  return `Joined ${month} ${yearString}`;
+};
+
+// Example usage:
+// const joinDate = new Date("2021-08-15");
+// console.log(getJoinedDateString(joinDate)); // Output: "Joined August 3 years ago" (assuming the current year is 2024)

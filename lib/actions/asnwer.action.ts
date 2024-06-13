@@ -7,6 +7,22 @@ import Question from "@/lib/database/question.model";
 import { revalidatePath } from "next/cache";
 import User from "../database/user.model";
 
+export async function getAnswersByAuthorId(authorId: string) {
+  try {
+    connectToDatabase();
+
+    const answers = await Answer.find({ author: authorId })
+      .populate({ path: "author", model: User })
+      .populate({ path: "question", model: Question })
+      .sort({ upvotes: -1 });
+
+    return { answers };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 export async function createAnswer(params: CreateAnswerParams) {
   try {
     connectToDatabase();

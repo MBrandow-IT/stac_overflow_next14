@@ -13,6 +13,7 @@ import {
 } from "./types";
 import Question from "../database/question.model";
 import Tag from "../database/tag.model";
+import Answer from "../database/answer.model";
 
 export async function getUserIdWithClerkId(clerkId: string) {
   try {
@@ -23,6 +24,21 @@ export async function getUserIdWithClerkId(clerkId: string) {
       .populate({ path: "saved", model: Question });
 
     return userId;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getUserByClerkId(clerkId: string) {
+  try {
+    connectToDatabase();
+
+    const user = await User.findOne({ clerkId });
+
+    const totalQuestions = await Question.countDocuments({ author: user._id });
+    const totalAnswers = await Answer.countDocuments({ author: user._id });
+
+    return { user, totalQuestions, totalAnswers };
   } catch (error) {
     console.log(error);
   }
@@ -110,6 +126,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
       {
         $project: {
           _id: "$_id", // Include user _id
+          clerkId: "$userDetails.clerkId",
           name: "$userDetails.name",
           username: "$userDetails.username",
           picture: "$userDetails.picture",

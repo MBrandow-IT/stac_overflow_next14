@@ -8,6 +8,22 @@ import { connectToDatabase } from "../mongoose";
 import { CreateQuestionParams, GetQuestionsParams } from "./share.types";
 import { GetQuestionByIdParams } from "./types";
 
+export async function getQuestionsByAuthorId(authorId: string) {
+  try {
+    connectToDatabase();
+
+    const questions = await Question.find({ author: authorId })
+      .populate({ path: "tags", model: Tag })
+      .populate({ path: "author", model: User })
+      .sort({ views: -1 });
+
+    return { questions };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 export async function getQuestions(params: GetQuestionsParams) {
   try {
     connectToDatabase();
