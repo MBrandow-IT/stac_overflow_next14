@@ -32,7 +32,7 @@ const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
 
   const questionId = params.id;
 
-  console.log(question._id);
+  // console.log(question._id);
   const liked =
     mongoUserId !== undefined
       ? question.upvotes.includes(mongoUserId._id)

@@ -5,7 +5,7 @@ import Metric from "../shared/Metric";
 
 import { getTimestamp, formatLargeNumber } from "@/lib/utils";
 import { auth } from "@clerk/nextjs/server";
-import Image from "next/image";
+import EditDeleteAction from "../shared/EditDeleteAction";
 
 interface QuestionCardProps {
   _id: string;
@@ -54,21 +54,9 @@ const QuestionCard = ({
             </Link>
             {author.clerkId === userId && (
               <div className="flex gap-2">
-                {!answer && (
-                  <Image
-                    src="/assets/icons/edit.svg"
-                    alt="Edit"
-                    width={16}
-                    height={16}
-                    className="cursor-pointer"
-                  />
-                )}
-                <Image
-                  src="/assets/icons/trash.svg"
-                  alt="Delete"
-                  width={16}
-                  height={16}
-                  className="cursor-pointer"
+                <EditDeleteAction
+                  type={answer ? "answer" : "question"}
+                  itemId={JSON.stringify(_id)}
                 />
               </div>
             )}
@@ -109,7 +97,7 @@ const QuestionCard = ({
             textStyles="small-medium text-dark400_light800"
           />
         )}
-        {views && (
+        {!answer && (
           <Metric
             imgUrl="/assets/icons/eye.svg"
             alt="eye"

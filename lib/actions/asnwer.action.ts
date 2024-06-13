@@ -2,10 +2,15 @@
 
 import Answer from "@/lib/database/answer.model";
 import { connectToDatabase } from "../mongoose";
-import { CreateAnswerParams, GetAnswersParams } from "./types";
+import {
+  CreateAnswerParams,
+  DeleteAnswerParams,
+  GetAnswersParams,
+} from "./types";
 import Question from "@/lib/database/question.model";
 import { revalidatePath } from "next/cache";
 import User from "../database/user.model";
+import Interaction from "../database/interaction.model";
 
 export async function getAnswersByAuthorId(authorId: string) {
   try {
@@ -58,6 +63,33 @@ export async function getAnswers(params: GetAnswersParams) {
       .sort({ createdAt: -1 });
 
     return { answers };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function deleteAnswer(params: DeleteAnswerParams) {
+  try {
+    connectToDatabase();
+
+    // Take current user and create a question based on the question props and push it to the database.
+    const { answerId, path } = params;
+    const answer = await Answer.findById(answerId);
+
+    if (!answer) {
+      throw new Error("Answer not found");
+    }
+
+    // Create the question
+    await Answer.deleteOne({ _id: answerId });
+    await Question.updateMany(
+      { _id: answer.question },
+      { $pull: { answers: answerId } }
+    );
+    await Interaction.deleteMany({ answer: answerId });
+
+    revalidatePath(path);
   } catch (error) {
     console.log(error);
     throw error;

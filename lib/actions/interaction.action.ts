@@ -21,7 +21,7 @@ export async function viewQuestion(params: ViewQuestionParams) {
       });
 
       if (existingInteraction) {
-        return console.log("user has seen this post before");
+        return;
       }
       await Interaction.create({
         user: userId,

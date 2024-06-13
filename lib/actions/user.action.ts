@@ -275,3 +275,39 @@ export async function deleteUser(userData: DeleteUserParams) {
     throw error;
   }
 }
+
+interface UpdateProfileParams {
+  clerkId: string;
+  name: string;
+  username: string;
+  bio?: string;
+  location?: string;
+  portfolio?: string;
+  path: string;
+}
+
+export async function updateProfile(params: UpdateProfileParams) {
+  try {
+    await connectToDatabase();
+
+    const { clerkId, name, username, bio, location, portfolio } = params;
+
+    await User.findOneAndUpdate(
+      { clerkId },
+      {
+        $set: {
+          name,
+          username,
+          bio,
+          location,
+          portfolioWebsite: portfolio,
+        },
+      },
+      { new: true }
+    );
+
+    revalidatePath(params.path);
+  } catch (error) {
+    console.error(error);
+  }
+}

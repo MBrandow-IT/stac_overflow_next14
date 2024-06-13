@@ -6,7 +6,9 @@ import Tag from "../database/tag.model";
 import User from "../database/user.model";
 import { connectToDatabase } from "../mongoose";
 import { CreateQuestionParams, GetQuestionsParams } from "./share.types";
-import { GetQuestionByIdParams } from "./types";
+import { DeleteQuestionParams, GetQuestionByIdParams } from "./types";
+import Answer from "../database/answer.model";
+import Interaction from "../database/interaction.model";
 
 export async function getQuestionsByAuthorId(authorId: string) {
   try {
@@ -74,6 +76,52 @@ export async function createQuestion(params: CreateQuestionParams) {
   } catch (error) {}
 }
 
+interface UpdateQuestionParams {
+  questionId: string;
+  title: string;
+  content: string;
+  tags: string[];
+  path: string;
+}
+
+export async function updateQuestion(params: UpdateQuestionParams) {
+  try {
+    connectToDatabase();
+
+    console.log("You ARE TRYING TO UPDATE THE QUESTION");
+
+    const { questionId, title, content, tags, path } = params;
+
+    const question = await Question.findByIdAndUpdate(
+      questionId,
+      {
+        title,
+        content,
+      },
+      { new: true }
+    );
+
+    const tagDocuments = [];
+
+    for (const tag of tags) {
+      const existingTag = await Tag.findOneAndUpdate(
+        { name: { $regex: new RegExp(`^${tag}$`, "i") } },
+        { $setOnInsert: { name: tag }, $push: { questions: question._id } },
+        { upsert: true, new: true }
+      );
+      tagDocuments.push(existingTag._id);
+    }
+
+    await Question.findByIdAndUpdate(question._id, {
+      $set: { tags: tagDocuments },
+    });
+
+    revalidatePath(path);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function getQuestionById(params: GetQuestionByIdParams) {
   try {
     connectToDatabase();
@@ -94,4 +142,43 @@ export async function getQuestionById(params: GetQuestionByIdParams) {
 
     return question;
   } catch (error) {}
+}
+
+export async function deleteQuestion(params: DeleteQuestionParams) {
+  try {
+    connectToDatabase();
+
+    // Take current user and create a question based on the question props and push it to the database.
+    const { questionId, path } = params;
+
+    // Create the question
+    await Question.deleteOne({ _id: questionId });
+    await Answer.deleteMany({ question: questionId });
+    await Interaction.deleteMany({ question: questionId });
+    await Tag.updateMany(
+      { questions: questionId },
+      { $pull: { questions: questionId } }
+    );
+
+    revalidatePath(path);
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function getTopQuestions() {
+  try {
+    connectToDatabase();
+
+    const questions = await Question.find({})
+      .select("_id title")
+      .sort({ views: -1 })
+      .limit(5);
+
+    return { questions };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
