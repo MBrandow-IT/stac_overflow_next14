@@ -11,7 +11,9 @@ import { URLProps } from "@/types";
 
 export default async function Home({ searchParams }: URLProps) {
   const query = searchParams?.q;
-  const result = await getQuestions({ searchQuery: query });
+  const filter = searchParams?.filter;
+
+  const result = await getQuestions({ searchQuery: query, filter });
 
   return (
     <div>
@@ -35,6 +37,7 @@ export default async function Home({ searchParams }: URLProps) {
           filters={HomePageFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
           containerClasses="hidden max-md:flex"
+          path="/"
         />
       </div>
       <div className="mt-10 flex flex-col gap-6 w-full">

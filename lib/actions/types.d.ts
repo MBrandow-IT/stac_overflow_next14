@@ -24,6 +24,7 @@ export interface CreateAnswerParams {
 
 export interface GetAnswersParams {
   questionId: string;
+  filter?: string;
 }
 
 export interface SearchParams {
@@ -99,6 +100,7 @@ export interface GetQuestionsByTagIdParams {
   page?: number;
   pageSize?: number;
   searchQuery?: string;
+  filter?: string;
 }
 
 export interface GetTopInteractedTagsParams {

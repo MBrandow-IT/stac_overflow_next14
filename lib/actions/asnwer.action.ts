@@ -56,11 +56,30 @@ export async function getAnswers(params: GetAnswersParams) {
   try {
     connectToDatabase();
 
+    const { filter } = params;
+
+    let filterCriteria: any = { createdAt: -1 };
+
+    if (filter) {
+      if (filter === "highestUpvotes") {
+        filterCriteria = { upvotes: -1 };
+      }
+      if (filter === "lowestUpvotes") {
+        filterCriteria = { upvotes: 1 };
+      }
+      if (filter === "recent") {
+        filterCriteria = { createdAt: -1 };
+      }
+      if (filter === "old") {
+        filterCriteria = { createdAt: 1 };
+      }
+    }
+
     const answers = await Answer.find({})
       .where("question", params.questionId)
       .populate({ path: "author", model: User })
       .populate({ path: "question", model: Question })
-      .sort({ createdAt: -1 });
+      .sort(filterCriteria);
 
     return { answers };
   } catch (error) {

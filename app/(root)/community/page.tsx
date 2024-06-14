@@ -10,7 +10,9 @@ import { URLProps } from "@/types";
 
 export default async function Communities({ searchParams }: URLProps) {
   const query = searchParams?.q;
-  const result = await getAllUsers({ searchQuery: query });
+  const filter = searchParams?.filter;
+
+  const result = await getAllUsers({ searchQuery: query, filter });
 
   return (
     <div className="w-full">
@@ -29,6 +31,7 @@ export default async function Communities({ searchParams }: URLProps) {
           filters={CommunityFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
           containerClasses=""
+          path="/community"
         />
       </div>
       <div className={`mt-10 flex flex-wrap gap-6 w-full flex-row `}>

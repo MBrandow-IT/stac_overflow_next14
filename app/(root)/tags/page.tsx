@@ -10,8 +10,9 @@ import { URLProps } from "@/types";
 
 export default async function Tags({ searchParams }: URLProps) {
   const query = searchParams?.q;
+  const filter = searchParams?.filter;
 
-  const result = await getAllTags({ searchQuery: query });
+  const result = await getAllTags({ searchQuery: query, filter });
 
   return (
     <>
@@ -30,6 +31,7 @@ export default async function Tags({ searchParams }: URLProps) {
           filters={TagFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
           containerClasses=""
+          path="/tags"
         />
       </div>
       <div className={`mt-10 flex flex-wrap gap-6 w-full flex-row`}>

@@ -8,18 +8,13 @@ import { viewQuestion } from "@/lib/actions/interaction.action";
 import { getQuestionById } from "@/lib/actions/question.action";
 import { getUserIdWithClerkId } from "@/lib/actions/user.action";
 import { formatLargeNumber, getTimestamp } from "@/lib/utils";
+import { URLProps } from "@/types";
 import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-interface QuestionDetailsProps {
-  params: {
-    id: string;
-  };
-}
-
-const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
+const QuestionDetails = async ({ params, searchParams }: URLProps) => {
   const { userId } = auth();
 
   const question = await getQuestionById({ questionId: params.id });
@@ -135,6 +130,7 @@ const QuestionDetails = async ({ params }: QuestionDetailsProps) => {
 
       <AllAnswers
         questionId={JSON.stringify(questionId)}
+        searchParams={searchParams}
         userId={
           mongoUserId !== undefined
             ? JSON.stringify(mongoUserId._id)

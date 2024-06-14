@@ -1,6 +1,6 @@
 import LocalSearchBar from "@/components/shared/search/LocalSearchBar";
 import SearchFilter from "@/components/shared/search/SearchFilter";
-import { HomePageFilters } from "@/constants";
+import { CollectionFilters } from "@/constants";
 import NoResult from "@/components/shared/NoResult";
 import QuestionCard from "@/components/cards/QuestionCard";
 import { auth } from "@clerk/nextjs/server";
@@ -12,12 +12,14 @@ export default async function Collections({ searchParams }: URLProps) {
   const { userId } = auth();
 
   const query = searchParams?.q;
+  const filter = searchParams?.filter;
 
   if (!userId) redirect("/sign-in");
 
   const savedQuestions = await getSavedQuestions({
     clerkId: userId,
     searchQuery: query,
+    filter,
   });
 
   return (
@@ -34,9 +36,10 @@ export default async function Collections({ searchParams }: URLProps) {
           otherClasses="flex-1 mb-2"
         />
         <SearchFilter
-          filters={HomePageFilters}
+          filters={CollectionFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
           containerClasses="flex"
+          path="/collection"
         />
       </div>
       <div className="mt-10 flex flex-col gap-6 w-full">

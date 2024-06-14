@@ -11,10 +11,16 @@ import Voting from "./Voting";
 interface props {
   questionId: string;
   userId?: string;
+  searchParams: { [key: string]: string | undefined };
 }
 
-const AllAnswers = async ({ questionId, userId }: props) => {
-  const result = await getAnswers({ questionId: JSON.parse(questionId) });
+const AllAnswers = async ({ questionId, userId, searchParams }: props) => {
+  const filter = searchParams?.filter;
+
+  const result = await getAnswers({
+    questionId: JSON.parse(questionId),
+    filter,
+  });
 
   return (
     <div className="mt-11">
@@ -22,7 +28,10 @@ const AllAnswers = async ({ questionId, userId }: props) => {
         <h3 className="primary-text-gradient">
           {result.answers.length} Answer(s)
         </h3>
-        <SearchFilter filters={AnswerFilters} />
+        <SearchFilter
+          filters={AnswerFilters}
+          path={`/question/${questionId}`}
+        />
       </div>
       <div>
         {result.answers.map((answer: any) => (

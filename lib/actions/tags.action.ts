@@ -11,7 +11,7 @@ export async function getAllTagQuestions(params: GetQuestionsByTagIdParams) {
   try {
     connectToDatabase();
 
-    const { tagId, searchQuery } = params;
+    const { tagId, searchQuery, filter } = params;
 
     const tagFilter: FilterQuery<ITag> = { _id: tagId };
 
@@ -24,6 +24,23 @@ export async function getAllTagQuestions(params: GetQuestionsByTagIdParams) {
       ];
     }
 
+    let filterCriteria: any = { createdAt: -1 };
+
+    if (filter) {
+      if (filter === "newest") {
+        filterCriteria = { createdAt: -1 };
+      }
+      if (filter === "recommended") {
+        filterCriteria = { upvotes: -1 };
+      }
+      if (filter === "frequent") {
+        filterCriteria = { views: -1 };
+      }
+      if (filter === "unanswered") {
+        query.answers = { $size: 0 };
+      }
+    }
+
     const tag = await Tag.findOne(tagFilter).populate({
       path: "questions",
       model: Question,
@@ -31,7 +48,7 @@ export async function getAllTagQuestions(params: GetQuestionsByTagIdParams) {
         ? { title: { $regex: searchQuery, $options: "i" } }
         : {},
       options: {
-        sort: { createdAt: -1 },
+        sort: filterCriteria,
       },
       populate: [
         {
@@ -55,7 +72,7 @@ export async function getAllTags(params: GetAllTagsParams) {
   try {
     connectToDatabase();
 
-    const { searchQuery } = params;
+    const { searchQuery, filter } = params;
 
     const query: FilterQuery<typeof Tag> = {};
 
@@ -64,6 +81,23 @@ export async function getAllTags(params: GetAllTagsParams) {
         { name: { $regex: new RegExp(searchQuery, "i") } },
         { description: { $regex: new RegExp(searchQuery, "i") } },
       ];
+    }
+
+    let filterCriteria: any = { count: -1 };
+
+    if (filter) {
+      if (filter === "popular") {
+        filterCriteria = { count: -1 };
+      }
+      if (filter === "recent") {
+        filterCriteria = { createdAt: -1 };
+      }
+      if (filter === "old") {
+        filterCriteria = { createdAt: 1 };
+      }
+      if (filter === "name") {
+        filterCriteria = { name: 1 };
+      }
     }
 
     const tags = await Tag.aggregate([
@@ -89,6 +123,7 @@ export async function getAllTags(params: GetAllTagsParams) {
       {
         $group: {
           _id: "$_id",
+          createdAt: { $first: "$createdAt" },
           name: { $first: "$name" },
           description: { $first: "$description" },
           count: { $sum: { $cond: [{ $not: ["$taggedQuestions"] }, 0, 1] } },
@@ -102,7 +137,11 @@ export async function getAllTags(params: GetAllTagsParams) {
           name: 1,
           description: 1,
           count: 1,
+          createdAt: 1,
         },
+      },
+      {
+        $sort: filterCriteria,
       },
     ]);
     return tags;

@@ -48,7 +48,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
   try {
     await connectToDatabase();
 
-    const { searchQuery } = params;
+    const { searchQuery, filter } = params;
 
     const query: FilterQuery<typeof Question> = {};
 
@@ -57,6 +57,20 @@ export async function getAllUsers(params: GetAllUsersParams) {
         { name: { $regex: new RegExp(searchQuery, "i") } },
         { username: { $regex: new RegExp(searchQuery, "i") } },
       ];
+    }
+
+    let filterCriteria: any = { createdAt: 1 };
+
+    if (filter) {
+      if (filter === "new_users") {
+        filterCriteria = { createdAt: -1 };
+      }
+      if (filter === "old_users") {
+        filterCriteria = { createdAt: 1 };
+      }
+      if (filter === "top_contributors") {
+        filterCriteria = { reputation: 1 };
+      }
     }
 
     const users = await User.aggregate([
@@ -143,6 +157,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
           name: "$userDetails.name",
           username: "$userDetails.username",
           picture: "$userDetails.picture",
+          createdAt: "$userDetails.createdAt",
           tags: {
             $filter: {
               input: "$tags",
@@ -151,6 +166,9 @@ export async function getAllUsers(params: GetAllUsersParams) {
             },
           },
         },
+      },
+      {
+        $sort: filterCriteria,
       },
     ]);
 
@@ -201,7 +219,7 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
       clerkId,
       //  page = 1,
       //   pageSize = 10,
-      //    filter,
+      filter,
       searchQuery,
     } = params;
 
@@ -214,11 +232,31 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
       ];
     }
 
+    let filterCriteria: any = { createdAt: -1 };
+
+    if (filter) {
+      if (filter === "most_recent") {
+        filterCriteria = { createdAt: -1 };
+      }
+      if (filter === "oldest") {
+        filterCriteria = { createdAt: 1 };
+      }
+      if (filter === "most_voted") {
+        filterCriteria = { upvotes: -1 };
+      }
+      if (filter === "most_viewed") {
+        filterCriteria = { views: -1 };
+      }
+      if (filter === "most_answered") {
+        filterCriteria = { answers: -1 };
+      }
+    }
+
     const user = await User.findOne({ clerkId }).populate({
       path: "saved",
       match: query,
       options: {
-        sort: { createdAt: -1 },
+        sort: filterCriteria,
       },
       populate: [
         { path: "tags", model: Tag, select: "_id name" },

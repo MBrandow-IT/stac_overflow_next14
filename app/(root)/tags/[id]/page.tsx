@@ -11,8 +11,13 @@ const TagDetails = async ({ params, searchParams }: URLProps) => {
   const tagId = params.id;
 
   const query = searchParams?.q;
+  const filter = searchParams?.filter;
 
-  const result = await getAllTagQuestions({ tagId, searchQuery: query });
+  const result = await getAllTagQuestions({
+    tagId,
+    searchQuery: query,
+    filter,
+  });
 
   return (
     <div>
@@ -33,6 +38,7 @@ const TagDetails = async ({ params, searchParams }: URLProps) => {
           filters={HomePageFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
           containerClasses="flex"
+          path={`/tags/${tagId}`}
         />
       </div>
       <div className="mt-10 flex flex-col gap-6 w-full">
