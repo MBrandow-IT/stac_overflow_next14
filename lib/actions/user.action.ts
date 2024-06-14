@@ -46,10 +46,23 @@ export async function getUserByClerkId(clerkId: string) {
 
 export async function getAllUsers(params: GetAllUsersParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
-    const users = User.aggregate([
-      // Lookup questions authored by each user
+    const { searchQuery } = params;
+
+    const query: FilterQuery<typeof Question> = {};
+
+    if (searchQuery) {
+      query.$or = [
+        { name: { $regex: new RegExp(searchQuery, "i") } },
+        { username: { $regex: new RegExp(searchQuery, "i") } },
+      ];
+    }
+
+    const users = await User.aggregate([
+      {
+        $match: query,
+      },
       {
         $lookup: {
           from: "questions", // the collection name of questions
@@ -140,9 +153,10 @@ export async function getAllUsers(params: GetAllUsersParams) {
         },
       },
     ]);
+
     return users;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 }
@@ -191,9 +205,14 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
       searchQuery,
     } = params;
 
-    const query: FilterQuery<typeof Question> = searchQuery
-      ? { title: { $regex: new RegExp(searchQuery, "i") } }
-      : {};
+    const query: FilterQuery<typeof Question> = {};
+
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: new RegExp(searchQuery, "i") } },
+        { content: { $regex: new RegExp(searchQuery, "i") } },
+      ];
+    }
 
     const user = await User.findOne({ clerkId }).populate({
       path: "saved",

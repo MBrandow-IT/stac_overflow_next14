@@ -6,9 +6,12 @@ import NoResult from "@/components/shared/NoResult";
 import Link from "next/link";
 import { getAllTags } from "@/lib/actions/tags.action";
 import TagCard from "@/components/cards/TagCard";
+import { URLProps } from "@/types";
 
-export default async function Tags() {
-  const result = await getAllTags({});
+export default async function Tags({ searchParams }: URLProps) {
+  const query = searchParams?.q;
+
+  const result = await getAllTags({ searchQuery: query });
 
   return (
     <>
@@ -17,7 +20,7 @@ export default async function Tags() {
       </div>
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col">
         <LocalSearchBar
-          route="/community"
+          route="/tags"
           imgSrc="/assets/icons/search.svg"
           iconPosition="left"
           placeholder="Search by tag name..."
@@ -29,9 +32,7 @@ export default async function Tags() {
           containerClasses=""
         />
       </div>
-      <div
-        className={`mt-10 flex flex-wrap gap-6 w-full flex-row max-h-[300px]`}
-      >
+      <div className={`mt-10 flex flex-wrap gap-6 w-full flex-row`}>
         {result.length > 0 ? (
           result.map((tag, index) => (
             <Link key={index} href={`/tags/${tag._id}`} className="w-[260px]">

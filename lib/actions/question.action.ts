@@ -9,6 +9,7 @@ import { CreateQuestionParams, GetQuestionsParams } from "./share.types";
 import { DeleteQuestionParams, GetQuestionByIdParams } from "./types";
 import Answer from "../database/answer.model";
 import Interaction from "../database/interaction.model";
+import { FilterQuery } from "mongoose";
 
 export async function getQuestionsByAuthorId(authorId: string) {
   try {
@@ -30,10 +31,26 @@ export async function getQuestions(params: GetQuestionsParams) {
   try {
     connectToDatabase();
 
-    const questions = await Question.find({})
+    const { searchQuery } = params;
+
+    const query: FilterQuery<typeof Question> = {};
+
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: new RegExp(searchQuery, "i") } },
+        { content: { $regex: new RegExp(searchQuery, "i") } },
+      ];
+    }
+
+    const questions = await Question.find(query)
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
       .sort({ createdAt: -1 });
+
+    // const questions = await Question.find({})
+    //   .populate({ path: "tags", model: Tag })
+    //   .populate({ path: "author", model: User })
+    //   .sort({ createdAt: -1 });
 
     return { questions };
   } catch (error) {

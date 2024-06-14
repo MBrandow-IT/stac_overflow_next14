@@ -7,10 +7,12 @@ import { getAllTagQuestions } from "@/lib/actions/tags.action";
 import { URLProps } from "@/types";
 import React from "react";
 
-const TagDetails = async ({ params }: URLProps) => {
+const TagDetails = async ({ params, searchParams }: URLProps) => {
   const tagId = params.id;
 
-  const result = await getAllTagQuestions({ tagId });
+  const query = searchParams?.q;
+
+  const result = await getAllTagQuestions({ tagId, searchQuery: query });
 
   return (
     <div>

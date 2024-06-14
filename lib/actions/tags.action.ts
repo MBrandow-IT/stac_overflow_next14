@@ -15,6 +15,15 @@ export async function getAllTagQuestions(params: GetQuestionsByTagIdParams) {
 
     const tagFilter: FilterQuery<ITag> = { _id: tagId };
 
+    const query: FilterQuery<typeof Question> = {};
+
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: new RegExp(searchQuery, "i") } },
+        { content: { $regex: new RegExp(searchQuery, "i") } },
+      ];
+    }
+
     const tag = await Tag.findOne(tagFilter).populate({
       path: "questions",
       model: Question,
@@ -46,7 +55,21 @@ export async function getAllTags(params: GetAllTagsParams) {
   try {
     connectToDatabase();
 
+    const { searchQuery } = params;
+
+    const query: FilterQuery<typeof Tag> = {};
+
+    if (searchQuery) {
+      query.$or = [
+        { name: { $regex: new RegExp(searchQuery, "i") } },
+        { description: { $regex: new RegExp(searchQuery, "i") } },
+      ];
+    }
+
     const tags = await Tag.aggregate([
+      {
+        $match: query,
+      },
       // Lookup questions with each tag
       {
         $lookup: {

@@ -6,9 +6,11 @@ import NoResult from "@/components/shared/NoResult";
 import UserCard from "@/components/cards/UserCard";
 import { getAllUsers } from "@/lib/actions/user.action";
 import Link from "next/link";
+import { URLProps } from "@/types";
 
-export default async function Communities() {
-  const result = await getAllUsers({});
+export default async function Communities({ searchParams }: URLProps) {
+  const query = searchParams?.q;
+  const result = await getAllUsers({ searchQuery: query });
 
   return (
     <div className="w-full">

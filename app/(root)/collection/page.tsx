@@ -6,13 +6,19 @@ import QuestionCard from "@/components/cards/QuestionCard";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getSavedQuestions } from "@/lib/actions/user.action";
+import { URLProps } from "@/types";
 
-export default async function Collections() {
+export default async function Collections({ searchParams }: URLProps) {
   const { userId } = auth();
+
+  const query = searchParams?.q;
 
   if (!userId) redirect("/sign-in");
 
-  const savedQuestions = await getSavedQuestions({ clerkId: userId });
+  const savedQuestions = await getSavedQuestions({
+    clerkId: userId,
+    searchQuery: query,
+  });
 
   return (
     <div>

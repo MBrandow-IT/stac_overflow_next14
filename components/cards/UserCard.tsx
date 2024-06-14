@@ -34,7 +34,7 @@ const UserCard = ({ username, name, picture, tags }: UserProps) => {
           >
             {tag.name === undefined
               ? "No Tags Yet"
-              : tag.name.length > 6
+              : tag.name.length > 4
               ? `${tag.name.slice(0, 4)}..`
               : tag.name}
           </Badge>
