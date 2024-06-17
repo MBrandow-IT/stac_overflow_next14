@@ -7,12 +7,19 @@ import UserCard from "@/components/cards/UserCard";
 import { getAllUsers } from "@/lib/actions/user.action";
 import Link from "next/link";
 import { URLProps } from "@/types";
+import Pagination from "@/components/shared/Pagination";
 
 export default async function Communities({ searchParams }: URLProps) {
   const query = searchParams?.q;
   const filter = searchParams?.filter;
+  const page = searchParams?.page;
 
-  const result = await getAllUsers({ searchQuery: query, filter });
+  const result = await getAllUsers({
+    searchQuery: query,
+    filter,
+    page: page ? Number(page) : 1,
+    pageSize: 15,
+  });
 
   return (
     <div className="w-full">
@@ -35,8 +42,8 @@ export default async function Communities({ searchParams }: URLProps) {
         />
       </div>
       <div className={`mt-10 flex flex-wrap gap-6 w-full flex-row `}>
-        {result.length > 0 ? (
-          result.map((user, index) => (
+        {result.users.length > 0 ? (
+          result.users.map((user, index) => (
             <Link
               key={index}
               href={`/profile/${user.clerkId}`}
@@ -59,6 +66,10 @@ export default async function Communities({ searchParams }: URLProps) {
           />
         )}
       </div>
+      <Pagination
+        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        currentViewFull={result.isNext}
+      />
     </div>
   );
 }

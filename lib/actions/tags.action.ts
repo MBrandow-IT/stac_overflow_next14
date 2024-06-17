@@ -11,7 +11,9 @@ export async function getAllTagQuestions(params: GetQuestionsByTagIdParams) {
   try {
     connectToDatabase();
 
-    const { tagId, searchQuery, filter } = params;
+    const { tagId, searchQuery, filter, page = 1, pageSize = 15 } = params;
+
+    const skipAmount = (page - 1) * pageSize;
 
     const tagFilter: FilterQuery<ITag> = { _id: tagId };
 
@@ -49,6 +51,8 @@ export async function getAllTagQuestions(params: GetQuestionsByTagIdParams) {
         : {},
       options: {
         sort: filterCriteria,
+        skip: skipAmount,
+        limit: pageSize,
       },
       populate: [
         {
@@ -62,7 +66,17 @@ export async function getAllTagQuestions(params: GetQuestionsByTagIdParams) {
       ],
     });
 
-    return tag;
+    const totalTagQuestions = await Question.findOne(tagFilter).populate({
+      path: "questions",
+      model: Question,
+      match: query,
+    });
+
+    const isNext = totalTagQuestions
+      ? totalTagQuestions.questions.length > skipAmount + tag.questions.length
+      : false;
+
+    return { tag, isNext };
   } catch (error) {
     console.log(error);
   }
@@ -72,7 +86,9 @@ export async function getAllTags(params: GetAllTagsParams) {
   try {
     connectToDatabase();
 
-    const { searchQuery, filter } = params;
+    const { searchQuery, filter, page = 1, pageSize = 21 } = params;
+
+    const skipAmount = (page - 1) * pageSize;
 
     const query: FilterQuery<typeof Tag> = {};
 
@@ -83,17 +99,17 @@ export async function getAllTags(params: GetAllTagsParams) {
       ];
     }
 
-    let filterCriteria: any = { count: -1 };
+    let filterCriteria: any = { count: -1, name: 1 };
 
     if (filter) {
       if (filter === "popular") {
-        filterCriteria = { count: -1 };
+        filterCriteria = { count: -1, name: 1 };
       }
       if (filter === "recent") {
-        filterCriteria = { createdAt: -1 };
+        filterCriteria = { createdAt: -1, name: 1 };
       }
       if (filter === "old") {
-        filterCriteria = { createdAt: 1 };
+        filterCriteria = { createdAt: 1, name: 1 };
       }
       if (filter === "name") {
         filterCriteria = { name: 1 };
@@ -143,8 +159,19 @@ export async function getAllTags(params: GetAllTagsParams) {
       {
         $sort: filterCriteria,
       },
+      {
+        $skip: skipAmount,
+      },
+      {
+        $limit: pageSize,
+      },
     ]);
-    return tags;
+
+    const totalTags = await Tag.countDocuments(query);
+
+    const isNext = totalTags > skipAmount + tags.length;
+
+    return { tags, isNext };
   } catch (error) {
     console.log(error);
     throw error;

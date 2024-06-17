@@ -56,7 +56,9 @@ export async function getAnswers(params: GetAnswersParams) {
   try {
     connectToDatabase();
 
-    const { filter } = params;
+    const { filter, page = 1, pageSize = 10 } = params;
+
+    const skipAmount = (page - 1) * pageSize;
 
     let filterCriteria: any = { createdAt: -1 };
 
@@ -79,9 +81,17 @@ export async function getAnswers(params: GetAnswersParams) {
       .where("question", params.questionId)
       .populate({ path: "author", model: User })
       .populate({ path: "question", model: Question })
-      .sort(filterCriteria);
+      .sort(filterCriteria)
+      .skip(skipAmount)
+      .limit(pageSize);
 
-    return { answers };
+    const totalAnswers = await Answer.countDocuments({
+      question: params.questionId,
+    });
+
+    const isNext = totalAnswers > skipAmount + answers.length;
+
+    return { answers, isNext };
   } catch (error) {
     console.log(error);
     throw error;

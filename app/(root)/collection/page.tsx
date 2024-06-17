@@ -7,12 +7,14 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getSavedQuestions } from "@/lib/actions/user.action";
 import { URLProps } from "@/types";
+import Pagination from "@/components/shared/Pagination";
 
 export default async function Collections({ searchParams }: URLProps) {
   const { userId } = auth();
 
   const query = searchParams?.q;
   const filter = searchParams?.filter;
+  const page = searchParams?.page;
 
   if (!userId) redirect("/sign-in");
 
@@ -20,6 +22,8 @@ export default async function Collections({ searchParams }: URLProps) {
     clerkId: userId,
     searchQuery: query,
     filter,
+    page: page ? Number(page) : 1,
+    pageSize: 15,
   });
 
   return (
@@ -66,6 +70,10 @@ export default async function Collections({ searchParams }: URLProps) {
           />
         )}
       </div>
+      <Pagination
+        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        currentViewFull={savedQuestions.isNext}
+      />
     </div>
   );
 }

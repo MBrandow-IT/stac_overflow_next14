@@ -14,6 +14,7 @@ import {
 import Question from "../database/question.model";
 import Tag from "../database/tag.model";
 import Answer from "../database/answer.model";
+import { skip } from "node:test";
 
 export async function getUserIdWithClerkId(clerkId: string) {
   try {
@@ -48,7 +49,9 @@ export async function getAllUsers(params: GetAllUsersParams) {
   try {
     await connectToDatabase();
 
-    const { searchQuery, filter } = params;
+    const { searchQuery, filter, page = 1, pageSize = 15 } = params;
+
+    const skipAmmount = (page - 1) * pageSize;
 
     const query: FilterQuery<typeof Question> = {};
 
@@ -170,9 +173,18 @@ export async function getAllUsers(params: GetAllUsersParams) {
       {
         $sort: filterCriteria,
       },
+      {
+        $skip: skipAmmount | 0,
+      },
+      {
+        $limit: pageSize,
+      },
     ]);
 
-    return users;
+    const totalUsers = await User.countDocuments(query);
+    const isNext = totalUsers > skipAmmount + users.length;
+
+    return { users, isNext };
   } catch (error) {
     console.error(error);
     throw error;
@@ -215,13 +227,9 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
   try {
     connectToDatabase();
 
-    const {
-      clerkId,
-      //  page = 1,
-      //   pageSize = 10,
-      filter,
-      searchQuery,
-    } = params;
+    const { clerkId, page = 1, pageSize = 10, filter, searchQuery } = params;
+
+    const skipAmmount = (page - 1) * pageSize;
 
     const query: FilterQuery<typeof Question> = {};
 
@@ -257,6 +265,8 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
       match: query,
       options: {
         sort: filterCriteria,
+        skip: skipAmmount,
+        limit: pageSize,
       },
       populate: [
         { path: "tags", model: Tag, select: "_id name" },
@@ -268,13 +278,22 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
       ],
     });
 
+    const totalSavedQuestions = await User.findOne({ clerkId }).populate({
+      path: "saved",
+      match: query,
+    });
+
+    const isNext = totalSavedQuestions
+      ? totalSavedQuestions.saved.length > skipAmmount + user.saved.length
+      : false;
+
     if (!user) {
       throw new Error("User not found");
     }
 
     const savedQuestions = user.saved;
 
-    return { questions: savedQuestions };
+    return { questions: savedQuestions, isNext };
   } catch (error) {
     console.log(error);
     throw error;

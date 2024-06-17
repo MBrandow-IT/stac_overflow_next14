@@ -7,12 +7,19 @@ import Link from "next/link";
 import { getAllTags } from "@/lib/actions/tags.action";
 import TagCard from "@/components/cards/TagCard";
 import { URLProps } from "@/types";
+import Pagination from "@/components/shared/Pagination";
 
 export default async function Tags({ searchParams }: URLProps) {
   const query = searchParams?.q;
   const filter = searchParams?.filter;
+  const page = searchParams?.page;
 
-  const result = await getAllTags({ searchQuery: query, filter });
+  const result = await getAllTags({
+    searchQuery: query,
+    filter,
+    page: page ? Number(page) : 1,
+    pageSize: 15,
+  });
 
   return (
     <>
@@ -35,8 +42,8 @@ export default async function Tags({ searchParams }: URLProps) {
         />
       </div>
       <div className={`mt-10 flex flex-wrap gap-6 w-full flex-row`}>
-        {result.length > 0 ? (
-          result.map((tag, index) => (
+        {result.tags.length > 0 ? (
+          result.tags.map((tag, index) => (
             <Link key={index} href={`/tags/${tag._id}`} className="w-[260px]">
               <TagCard
                 name={tag.name}
@@ -54,6 +61,10 @@ export default async function Tags({ searchParams }: URLProps) {
           />
         )}
       </div>
+      <Pagination
+        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        currentViewFull={result.isNext}
+      />
     </>
   );
 }

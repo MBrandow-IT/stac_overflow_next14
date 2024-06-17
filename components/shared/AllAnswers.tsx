@@ -7,6 +7,7 @@ import Image from "next/image";
 import { getTimestamp } from "@/lib/utils";
 import ParseHTML from "../ParseHTML";
 import Voting from "./Voting";
+import Pagination from "./Pagination";
 
 interface props {
   questionId: string;
@@ -16,10 +17,13 @@ interface props {
 
 const AllAnswers = async ({ questionId, userId, searchParams }: props) => {
   const filter = searchParams?.filter;
+  const page = searchParams?.page;
 
   const result = await getAnswers({
     questionId: JSON.parse(questionId),
     filter,
+    page: page ? Number(page) : 1,
+    pageSize: 15,
   });
 
   return (
@@ -83,6 +87,10 @@ const AllAnswers = async ({ questionId, userId, searchParams }: props) => {
           </article>
         ))}
       </div>
+      <Pagination
+        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        currentViewFull={result.isNext}
+      />
     </div>
   );
 };

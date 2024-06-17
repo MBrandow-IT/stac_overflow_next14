@@ -8,12 +8,19 @@ import NoResult from "@/components/shared/NoResult";
 import QuestionCard from "@/components/cards/QuestionCard";
 import { getQuestions } from "@/lib/actions/question.action";
 import { URLProps } from "@/types";
+import Pagination from "@/components/shared/Pagination";
 
 export default async function Home({ searchParams }: URLProps) {
   const query = searchParams?.q;
   const filter = searchParams?.filter;
+  const page = searchParams?.page;
 
-  const result = await getQuestions({ searchQuery: query, filter });
+  const result = await getQuestions({
+    searchQuery: query,
+    filter,
+    page: page ? Number(page) : 1,
+    pageSize: 15,
+  });
 
   return (
     <div>
@@ -66,6 +73,10 @@ export default async function Home({ searchParams }: URLProps) {
           />
         )}
       </div>
+      <Pagination
+        pageNumber={searchParams?.page ? +searchParams.page : 1}
+        currentViewFull={result.isNext}
+      />
     </div>
   );
 }
