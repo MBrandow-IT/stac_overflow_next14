@@ -43,6 +43,8 @@ export async function createAnswer(params: CreateAnswerParams) {
       $push: { answers: newAnswer._id },
     });
 
+    await User.findByIdAndUpdate(author, { $inc: { reputation: 5 } });
+
     // TODO: Add interaction...
 
     revalidatePath(path);
@@ -117,6 +119,8 @@ export async function deleteAnswer(params: DeleteAnswerParams) {
       { $pull: { answers: answerId } }
     );
     await Interaction.deleteMany({ answer: answerId });
+
+    await User.findByIdAndUpdate(answer.author, { $inc: { reputation: -5 } });
 
     revalidatePath(path);
   } catch (error) {

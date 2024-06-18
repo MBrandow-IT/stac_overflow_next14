@@ -41,7 +41,7 @@ export async function getGlobalSearchResult(params: GlobalSearchResultParams) {
       result = result.slice(0, 10);
     }
 
-    console.log(result);
+    // console.log(result);
     return JSON.stringify(result);
   } catch (error) {
     console.log(error);

@@ -8,9 +8,8 @@ import { SaveParams, VoteParams } from "./types";
 import User from "../database/user.model";
 
 export async function handleVote(params: VoteParams) {
-  // console.log(params);
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const {
       userId,
@@ -36,30 +35,43 @@ export async function handleVote(params: VoteParams) {
       throw new Error("Item not found.");
     }
 
+    const author = item.author;
+
     if (isUpVoting) {
       if (hasDownVoted) {
         item.downvotes.pull(userId);
+        await User.findByIdAndUpdate(userId, { $inc: { reputation: 1 } });
+        await User.findByIdAndUpdate(author, { $inc: { reputation: 2 } });
       }
       if (!hasUpVoted) {
         item.upvotes.push(userId);
+        await User.findByIdAndUpdate(userId, { $inc: { reputation: 1 } });
+        await User.findByIdAndUpdate(author, { $inc: { reputation: 10 } });
       } else {
         item.upvotes.pull(userId);
+        await User.findByIdAndUpdate(userId, { $inc: { reputation: -1 } });
+        await User.findByIdAndUpdate(author, { $inc: { reputation: -10 } });
       }
     }
 
     if (isDownVoting) {
       if (hasUpVoted) {
         item.upvotes.pull(userId);
+        await User.findByIdAndUpdate(userId, { $inc: { reputation: -1 } });
+        await User.findByIdAndUpdate(author, { $inc: { reputation: -10 } });
       }
       if (!hasDownVoted) {
         item.downvotes.push(userId);
+        await User.findByIdAndUpdate(userId, { $inc: { reputation: -1 } });
+        await User.findByIdAndUpdate(author, { $inc: { reputation: -2 } });
       } else {
         item.downvotes.pull(userId);
+        await User.findByIdAndUpdate(userId, { $inc: { reputation: 1 } });
+        await User.findByIdAndUpdate(author, { $inc: { reputation: 2 } });
       }
     }
 
     await item.save();
-    // revalidatePath(`/`); // Adjust this path as necessary
   } catch (error) {
     console.log(error);
     throw error;
