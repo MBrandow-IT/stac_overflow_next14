@@ -91,6 +91,7 @@ const Profile = async ({ params, searchParams }: URLProps) => {
       <Stats
         questions={userInfo.totalQuestions}
         answers={userInfo.totalAnswers}
+        userId={id}
       />
       <div className="mt-10 flex gap-10">
         <Tabs defaultValue="top-posts" className="flex-1">

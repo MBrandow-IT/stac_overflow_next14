@@ -392,3 +392,49 @@ export async function updateProfile(params: UpdateProfileParams) {
     console.error(error);
   }
 }
+
+interface BadgeProps {
+  userId: string;
+}
+
+export const userBadges = async (props: BadgeProps) => {
+  try {
+    await connectToDatabase();
+
+    const { userId } = props;
+
+    const user = await User.findOne({ clerkId: userId }).select("reputation");
+
+    if (!user) {
+      throw new Error("User not found.");
+    }
+
+    const reputation = user.reputation;
+
+    let goldBadge = 0;
+    let silverBadge = 0;
+    let bronzeBadge = 0;
+
+    // Calculate gold badges
+    goldBadge = Math.floor(reputation / 1000);
+    let remainingReputation = reputation % 1000;
+
+    // Calculate silver badges
+    silverBadge = Math.floor(remainingReputation / 100);
+    remainingReputation = remainingReputation % 100;
+
+    // Calculate bronze badges
+    bronzeBadge = remainingReputation % 10;
+
+    const result = {
+      goldBadge,
+      silverBadge,
+      bronzeBadge,
+    };
+
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

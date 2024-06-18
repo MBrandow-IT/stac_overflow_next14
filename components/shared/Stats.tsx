@@ -1,12 +1,16 @@
 import React from "react";
 import Image from "next/image";
+import { userBadges } from "@/lib/actions/user.action";
 
 interface StatsProps {
   questions: number;
   answers: number;
+  userId: string;
 }
 
-const Stats = ({ questions, answers }: StatsProps) => {
+const Stats = async ({ questions, answers, userId }: StatsProps) => {
+  const result = await userBadges({ userId });
+
   return (
     <div className="mt-10">
       <h4 className="h3-semibold text-dark200_light900">Stats</h4>
@@ -33,7 +37,9 @@ const Stats = ({ questions, answers }: StatsProps) => {
             height={50}
           />
           <div className="flex flex-col gap-1">
-            <p className="paragraph-semibold text-dark200_light900">1</p>
+            <p className="paragraph-semibold text-dark200_light900">
+              {result.goldBadge}
+            </p>
             <p className="body-medium text-dark400_light700">Gold Badges</p>
           </div>
         </div>
@@ -45,7 +51,9 @@ const Stats = ({ questions, answers }: StatsProps) => {
             height={50}
           />
           <div className="flex flex-col gap-1">
-            <p className="paragraph-semibold text-dark200_light900">1</p>
+            <p className="paragraph-semibold text-dark200_light900">
+              {result.silverBadge}
+            </p>
             <p className="body-medium text-dark400_light700">Silver Badges</p>
           </div>
         </div>
@@ -57,7 +65,9 @@ const Stats = ({ questions, answers }: StatsProps) => {
             height={50}
           />
           <div className="flex flex-col gap-1">
-            <p className="paragraph-semibold text-dark200_light900">0</p>
+            <p className="paragraph-semibold text-dark200_light900">
+              {result.bronzeBadge}
+            </p>
             <p className="body-medium text-dark400_light700">Bronze Badges</p>
           </div>
         </div>
