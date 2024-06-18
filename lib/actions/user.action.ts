@@ -14,7 +14,6 @@ import {
 import Question from "../database/question.model";
 import Tag from "../database/tag.model";
 import Answer from "../database/answer.model";
-import { skip } from "node:test";
 
 export async function getUserIdWithClerkId(clerkId: string) {
   try {
@@ -53,7 +52,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
 
     const skipAmmount = (page - 1) * pageSize;
 
-    const query: FilterQuery<typeof Question> = {};
+    const query: FilterQuery<typeof User> = {};
 
     if (searchQuery) {
       query.$or = [

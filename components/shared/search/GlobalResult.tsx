@@ -8,20 +8,32 @@ import Image from "next/image";
 import GlobalFilters from "./GlobalFilters";
 import { getGlobalSearchResult } from "@/lib/actions/global.action";
 
-const GlobalResult = () => {
+interface GlobalResultProps {
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface SearchResultItem {
+  type: string;
+  _id: string;
+  clerkId?: string;
+  title?: string;
+  username?: string;
+  name?: string;
+}
+
+const GlobalResult: React.FC<GlobalResultProps> = ({ setIsOpen }) => {
   const searchParams = useSearchParams();
 
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [result, setResult] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [result, setResult] = React.useState<SearchResultItem[]>([]);
 
   const global = searchParams.get("global");
   const type = searchParams.get("type") || "";
 
   useEffect(() => {
+    setResult([]);
+    setIsLoading(true);
     const fetchResult = async () => {
-      setResult([]);
-      setIsLoading(true);
-
       try {
         if (!global) return;
 
@@ -30,7 +42,7 @@ const GlobalResult = () => {
           type,
         });
 
-        setResult(globalSearchResult);
+        setResult(JSON.parse(globalSearchResult));
       } catch (error) {
         console.log(error);
         throw error;
@@ -41,7 +53,17 @@ const GlobalResult = () => {
     fetchResult();
   }, [global, type]);
 
-  const renderLink = (itemType: string, id: string) => {
+  const renderLink = (
+    itemType: string,
+    id: string,
+    clerkId?: string
+  ): string => {
+    if (itemType === "question") return `/question/${id}`;
+
+    if (itemType === "tag") return `/tags/${id}`;
+    if (itemType === "user") return `/profile/${clerkId}`;
+    if (itemType === "answer") return `/question/${id}`;
+
     return "/";
   };
 
@@ -66,10 +88,11 @@ const GlobalResult = () => {
         ) : (
           <div className="flex flex-col gap-2">
             {result.length > 0 ? (
-              result.map((item: any, index: number) => (
+              result.map((item: SearchResultItem, index: number) => (
                 <Link
-                  href={renderLink("type", "id")}
-                  key={item.type + item.id + index}
+                  href={renderLink(item.type, item._id, item.clerkId)}
+                  onClick={() => setIsOpen(false)}
+                  key={item.type + item._id + index}
                   className="flex w-full cursor-pointer items-start gap-3 px-5 py-2.5 hover:bg-light-700/50 dark:hover:bg-dark-500/50"
                 >
                   <Image
@@ -81,8 +104,8 @@ const GlobalResult = () => {
                   />
 
                   <div className="flex flex-col">
-                    <p className="body-medium text-dark200_light800 line-clamp-1">
-                      {item.title}
+                    <p className="body-medium text-dark200_light800 line-clamp-1 capitalize">
+                      {item.title ? item.title : item.username || item.name}
                     </p>
                     <p className="text-light400_light500 small-medium mt-1 font-bold capitalize">
                       {item.type}

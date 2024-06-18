@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { formUrlQuery, removeKeysFromQuery } from "@/lib/utils";
@@ -15,6 +15,7 @@ const GlobalSearch = () => {
 
   const [searchValue, setSearchValue] = React.useState(query || "");
   const [isOpen, setIsOpen] = React.useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -37,8 +38,29 @@ const GlobalSearch = () => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchValue, pathname, router, searchParams, query]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+        setSearchValue("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [containerRef]);
+
   return (
-    <div className="relative w-full max-w-[600px] max-lg:hidden">
+    <div
+      className="relative w-full max-w-[600px] max-lg:hidden"
+      ref={containerRef}
+    >
       <div className="background-light800_darkgradient relative flex min-h-[56px] grow items-center gap-1 rounded-xl px-4">
         <Image
           src="/assets/icons/search.svg"
@@ -64,7 +86,7 @@ const GlobalSearch = () => {
           className="paragraph-regular text-dark400_light700 no-focus placeholder background-light800_darkgradient border-none shadow-none outline-none"
         />
       </div>
-      {isOpen && <GlobalResult />}
+      {isOpen && <GlobalResult setIsOpen={setIsOpen} />}
     </div>
   );
 };
