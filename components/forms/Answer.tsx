@@ -21,11 +21,14 @@ import { createAnswer } from "@/lib/actions/asnwer.action";
 
 interface Props {
   questionId: string;
+  question: string;
   userId?: string;
 }
 
-const Answer = ({ questionId, userId }: Props) => {
+const Answer = ({ questionId, userId, question }: Props) => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSubmittingAI, setIsSubmittingAI] = React.useState(false);
+  // const [aiAnswer, setAiAnswer] = React.useState("");
   const editorRef = React.useRef(null);
   const { mode } = useTheme() || {};
 
@@ -64,6 +67,40 @@ const Answer = ({ questionId, userId }: Props) => {
     }
   }
 
+  const generateAIAnswer = async () => {
+    if (!userId) return;
+
+    setIsSubmittingAI(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chatgpt`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ question }),
+        }
+      );
+
+      const aiAnswer = await response.json();
+
+      const formattedAnswer = aiAnswer.answer.replace(/\n/g, "<br />");
+
+      if (editorRef.current) {
+        const editor = editorRef.current as any;
+
+        editor.setContent(formattedAnswer);
+      }
+    } catch (error) {
+      console.log(error);
+      throw error;
+    } finally {
+      setIsSubmittingAI(false);
+    }
+  };
+
   return (
     <div>
       {userId ? (
@@ -72,19 +109,39 @@ const Answer = ({ questionId, userId }: Props) => {
             <h4 className="paragraph-semibold text-dark400_light800">
               Write your answer here
             </h4>
-            <Button
-              className="btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500"
-              onClick={() => {}}
-            >
-              <Image
-                alt="star"
-                src="/assets/icons/stars.svg"
-                width={12}
-                height={12}
-                className="object-contain"
-              />
-              Generate an AI Answer
-            </Button>
+            {isSubmittingAI ? (
+              <>
+                <Button
+                  className="btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500"
+                  disabled
+                >
+                  <Image
+                    alt="star"
+                    src="/assets/icons/stars.svg"
+                    width={12}
+                    height={12}
+                    className="object-contain"
+                  />
+                  Generating...
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  className="btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500"
+                  onClick={() => generateAIAnswer()}
+                >
+                  <Image
+                    alt="star"
+                    src="/assets/icons/stars.svg"
+                    width={12}
+                    height={12}
+                    className="object-contain"
+                  />
+                  Generate an AI Answer
+                </Button>
+              </>
+            )}
           </div>
           <Form {...form}>
             <form

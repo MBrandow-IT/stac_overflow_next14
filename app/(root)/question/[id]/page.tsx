@@ -139,6 +139,7 @@ const QuestionDetails = async ({ params, searchParams }: URLProps) => {
       />
 
       <Answer
+        question={question.content}
         questionId={JSON.stringify(questionId)}
         userId={
           mongoUserId !== undefined
