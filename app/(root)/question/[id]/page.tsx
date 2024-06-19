@@ -115,7 +115,9 @@ const QuestionDetails = async ({ params, searchParams }: URLProps) => {
         />
       </div>
 
-      <ParseHTML data={question.content} />
+      <div suppressHydrationWarning>
+        <ParseHTML data={question.content} />
+      </div>
 
       <div className="mt-8 flex flex-wrap gap-2">
         {question.tags.map((tag: any) => (

@@ -7,6 +7,7 @@ import { HomePageFilters } from "@/constants";
 import { getAllTagQuestions } from "@/lib/actions/tags.action";
 import { URLProps } from "@/types";
 import React from "react";
+// import Loading from "./loading";
 
 const TagDetails = async ({ params, searchParams }: URLProps) => {
   const tagId = params.id;
@@ -22,6 +23,10 @@ const TagDetails = async ({ params, searchParams }: URLProps) => {
     page: page ? Number(page) : 1,
     pageSize: 15,
   });
+
+  // const isLoading = true;
+
+  // if (isLoading) return <Loading />;
 
   return (
     <div>

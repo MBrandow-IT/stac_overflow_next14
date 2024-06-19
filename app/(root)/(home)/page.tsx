@@ -22,6 +22,10 @@ export default async function Home({ searchParams }: URLProps) {
     pageSize: 15,
   });
 
+  // const isLoading = true;
+
+  // if (isLoading) return <Loading />;
+
   return (
     <div>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">

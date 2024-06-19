@@ -25,8 +25,6 @@ export async function POST(req: Request) {
 
     const answer = response.choices[0].message.content;
 
-    console.log(answer);
-
     return NextResponse.json({ answer });
   } catch (error) {
     console.error("Error communicating with OpenAI:", error);

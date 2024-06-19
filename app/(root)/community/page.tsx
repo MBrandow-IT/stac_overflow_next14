@@ -21,6 +21,10 @@ export default async function Communities({ searchParams }: URLProps) {
     pageSize: 15,
   });
 
+  // const isLoading = true;
+
+  // if (isLoading) return <Loading />;
+
   return (
     <div className="w-full">
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
