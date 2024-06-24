@@ -54,7 +54,7 @@ const GlobalSearch = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [containerRef]);
+  }, []);
 
   return (
     <div
@@ -83,7 +83,7 @@ const GlobalSearch = () => {
               setIsOpen(false);
             }
           }}
-          className="paragraph-regular text-dark400_light700 no-focus placeholder background-light800_darkgradient border-none shadow-none outline-none"
+          className="paragraph-regular text-dark400_light700 no-focus placeholder border-none shadow-none outline-none bg-transparent"
         />
       </div>
       {isOpen && <GlobalResult setIsOpen={setIsOpen} />}

@@ -6,21 +6,50 @@ import Link from "next/link";
 import { HomePageFilters } from "@/constants";
 import NoResult from "@/components/shared/NoResult";
 import QuestionCard from "@/components/cards/QuestionCard";
-import { getQuestions } from "@/lib/actions/question.action";
+import {
+  getQuestions,
+  getRecommendedQuestions,
+} from "@/lib/actions/question.action";
 import { URLProps } from "@/types";
 import Pagination from "@/components/shared/Pagination";
 
+import type { Metadata } from "next";
+import { auth } from "@clerk/nextjs/server";
+
+export const metadata: Metadata = {
+  title: "Home | DevFlow",
+};
+
 export default async function Home({ searchParams }: URLProps) {
+  const { userId } = auth();
+
   const query = searchParams?.q;
   const filter = searchParams?.filter;
   const page = searchParams?.page;
 
-  const result = await getQuestions({
-    searchQuery: query,
-    filter,
-    page: page ? Number(page) : 1,
-    pageSize: 15,
-  });
+  let result;
+
+  if (searchParams?.filter === "recommended") {
+    if (userId) {
+      result = await getRecommendedQuestions({
+        userId,
+        searchQuery: query,
+        page: page ? Number(page) : 1,
+      });
+    } else {
+      result = {
+        questions: [],
+        isNext: false,
+      };
+    }
+  } else {
+    result = await getQuestions({
+      searchQuery: query,
+      filter,
+      page: page ? Number(page) : 1,
+      pageSize: 15,
+    });
+  }
 
   // const isLoading = true;
 

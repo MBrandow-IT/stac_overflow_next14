@@ -83,13 +83,14 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
               />
             </div>
           </SelectTrigger>
-          <SelectContent>
-            <SelectGroup className="text-dark500_light700 background-light800_dark300">
+          <SelectContent className="text-dark500_light700 border-none bg-light-900 dark:bg-dark-300">
+            <SelectGroup>
               {filters.map((filter, index) => (
                 <SelectItem
                   key={index}
                   value={filter.value}
                   // onChange={setActiveFilter(filter.value)}
+                  className="focus:bg-light-800 dark:focus:bg-dark-400 hover:cursor-pointer"
                 >
                   {filter.name}
                 </SelectItem>
