@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   title: "DevFlow",
   description: "A community of developers helping each other out.",
   keywords: ["..."],
+
   icons: {
     icon: "/assets/images/site-logo.svg",
   },
