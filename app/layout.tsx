@@ -1,6 +1,7 @@
 import React from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import "../styles/prism.css";
 
 import { Inter, Space_Grotesk as SpaceGrotesk } from "next/font/google";
 import type { Metadata } from "next";
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
   title: "DevFlow",
   description: "A community of developers helping each other out.",
   keywords: ["..."],
+
   icons: {
     icon: "/assets/images/site-logo.svg",
   },

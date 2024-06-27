@@ -51,7 +51,7 @@ const Theme = () => {
                   localStorage.theme = theme.value;
                 }
               }}
-              className="flex items-center gap-4 px-2.5 py-2 "
+              className="flex items-center gap-4 px-2.5 py-2 focus:bg-light-800 dark:focus:bg-dark-400 hover:cursor-pointer"
             >
               <Image
                 src={theme.icon}

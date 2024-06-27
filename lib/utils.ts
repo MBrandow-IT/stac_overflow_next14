@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import qs from "query-string";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -53,3 +54,89 @@ export const formatLargeNumber = (number: number): string => {
     return number.toString();
   }
 };
+
+export const getJoinedDateString = (date: Date) => {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const joinYear = date.getFullYear();
+  const month = months[date.getMonth()];
+
+  let yearString;
+
+  if (currentYear === joinYear) {
+    yearString = "this year";
+  } else if (currentYear - joinYear === 1) {
+    yearString = "last year";
+  } else {
+    yearString = `${currentYear - joinYear} years ago`;
+  }
+
+  return `Joined ${month} ${yearString}`;
+};
+
+interface UrlQueryParams {
+  params: string;
+  key: string;
+  value: string | null;
+}
+
+export const formUrlQuery = ({ params, key, value }: UrlQueryParams) => {
+  const currentUrl = qs.parse(params);
+
+  currentUrl[key] = value;
+
+  return qs.stringifyUrl(
+    {
+      url: window.location.pathname,
+      query: currentUrl,
+    },
+    {
+      skipNull: true,
+    }
+  );
+};
+
+interface RemoveUrlQueryParams {
+  params: string;
+  keysToRemove: string[];
+}
+
+export const removeKeysFromQuery = ({
+  params,
+  keysToRemove,
+}: RemoveUrlQueryParams) => {
+  const currentUrl = qs.parse(params);
+
+  keysToRemove.forEach((key) => {
+    delete currentUrl[key];
+  });
+
+  return qs.stringifyUrl(
+    {
+      url: window.location.pathname,
+      query: currentUrl,
+    },
+    {
+      skipNull: true,
+    }
+  );
+};
+
+// Example usage:
+// const joinDate = new Date("2021-08-15");
+// console.log(getJoinedDateString(joinDate)); // Output: "Joined August 3 years ago" (assuming the current year is 2024)

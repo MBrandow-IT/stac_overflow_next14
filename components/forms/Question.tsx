@@ -20,18 +20,28 @@ import { Input } from "@/components/ui/input";
 import { Editor } from "@tinymce/tinymce-react";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
-import { createQuestion } from "@/lib/actions/question.action";
+import { createQuestion, updateQuestion } from "@/lib/actions/question.action";
 import { useRouter, usePathname } from "next/navigation";
+import { useTheme } from "@/context/theme";
 
-// type formSubmitType = "create" | "edit";
-
-interface props {
+interface Props {
   mongoUserId: string;
+  type: "create" | "edit";
+  questionId?: string;
+  questionTitle?: string;
+  questionContent?: string;
+  tags?: [];
 }
 
-const type: any = "create";
-
-const Question = ({ mongoUserId }: props) => {
+const Question = ({
+  mongoUserId,
+  type,
+  questionId,
+  questionTitle,
+  questionContent,
+  tags,
+}: Props) => {
+  const { mode } = useTheme() || {};
   const editorRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -41,27 +51,38 @@ const Question = ({ mongoUserId }: props) => {
   const form = useForm<z.infer<typeof QuestionsSchema>>({
     resolver: zodResolver(QuestionsSchema),
     defaultValues: {
-      title: "",
-      explanation: "",
-      tags: [],
+      title: questionTitle || "",
+      explanation: questionContent || "",
+      tags: tags || [],
     },
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof QuestionsSchema>) {
     setIsSubmitting(true);
 
     try {
-      await createQuestion({
-        title: values.title,
-        content: values.explanation,
-        tags: values.tags,
-        author: JSON.parse(mongoUserId),
-        path: pathname,
-      });
+      if (type === "create") {
+        await createQuestion({
+          title: values.title,
+          content: values.explanation,
+          tags: values.tags,
+          author: JSON.parse(mongoUserId),
+          path: pathname,
+        });
+      } else if (type === "edit" && questionId) {
+        await updateQuestion({
+          questionId,
+          title: values.title,
+          content: values.explanation,
+          tags: values.tags,
+          path: pathname,
+        });
+      }
 
       router.push("/");
     } catch (error) {
+      console.log(error);
+      // alert(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -148,7 +169,7 @@ const Question = ({ mongoUserId }: props) => {
                   }}
                   onBlur={field.onBlur}
                   onEditorChange={(content) => field.onChange(content)}
-                  initialValue=""
+                  initialValue={questionContent || ""}
                   init={{
                     height: 350,
                     menubar: false,
@@ -175,6 +196,8 @@ const Question = ({ mongoUserId }: props) => {
                       "codesample | bold italic forecolor | alignleft aligncenter " +
                       "alignright alignjustify | bullist numlist ",
                     content_style: "body { font-family:Inter; font-size:16px }",
+                    skin: mode === "dark" ? "oxide-dark" : "oxide",
+                    content_css: mode === "dark" ? "dark" : "light",
                   }}
                 />
               </FormControl>

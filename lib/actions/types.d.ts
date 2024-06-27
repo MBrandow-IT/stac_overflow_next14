@@ -15,6 +15,20 @@ export interface DeleteAnswerParams {
   path: string;
 }
 
+export interface CreateAnswerParams {
+  content: string;
+  author: string;
+  question: string;
+  path: string;
+}
+
+export interface GetAnswersParams {
+  questionId: string;
+  filter?: string;
+  page?: number;
+  pageSize?: number;
+}
+
 export interface SearchParams {
   query?: string | null;
   type?: string | null;
@@ -88,6 +102,7 @@ export interface GetQuestionsByTagIdParams {
   page?: number;
   pageSize?: number;
   searchQuery?: string;
+  filter?: string;
 }
 
 export interface GetTopInteractedTagsParams {
@@ -142,4 +157,20 @@ export interface GetUserStatsParams {
 
 export interface DeleteUserParams {
   clerkId: string;
+}
+
+export interface VoteParams {
+  userId: string;
+  questionId?: string;
+  answerId?: string;
+  hasUpVoted?: boolean;
+  hasDownVoted?: boolean;
+  isUpVoting?: boolean;
+  isDownVoting?: boolean;
+}
+
+export interface SaveParams {
+  userId: string;
+  questionId: string;
+  isSaved: boolean;
 }

@@ -28,7 +28,7 @@ const UserSchema = new Schema({
   location: { type: String },
   portfolioWebsite: { type: String },
   reputation: { type: Number, default: 0 },
-  saved: [{ type: Schema.Types.ObjectId, ref: "Question" }],
+  saved: [{ type: Schema.Types.ObjectId, ref: "Question", default: [] }],
   createdAt: { type: Date, default: Date.now },
 });
 
